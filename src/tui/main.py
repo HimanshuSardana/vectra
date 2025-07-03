@@ -5,7 +5,7 @@ from rich.panel import Panel
 from rich.text import Text
 from questionary import select
 import chromadb
-
+from src.core.sync import ChromaDBSync
 
 class VectraTUI:
     def __init__(self, storage_location):
@@ -17,7 +17,7 @@ class VectraTUI:
         banner_text = Text()
         banner_text.append("Vectra\n", style="bold green")
         banner_text.append("A simple TUI for managing your vector store.", style="dim")
-        self.console.print(Panel(banner_text, title="🧠 Vectra", expand=False))
+        self.console.print(Panel(banner_text, title="Vectra", expand=False))
 
     def display_panel(self, title, body, style="cyan"):
         """Utility method to show a panel."""
@@ -29,6 +29,7 @@ class VectraTUI:
             "What would you like to do?",
             choices=[
                 "Query",
+                "Sync current directory",
                 "Create new collection",
                 "View collections",
                 "Delete a collection",
@@ -44,6 +45,10 @@ class VectraTUI:
 
             if choice == "Query":
                 self.query()
+            elif choice == "Sync current directory":
+                sync = ChromaDBSync(self.chroma_client)
+                sync.sync()
+                self.display_panel("Sync", "Current directory synced with the vector store.", style="green")
             elif choice == "Create new collection":
                 self.create_collection()
             elif choice == "View collections":
@@ -73,7 +78,7 @@ class VectraTUI:
             try:
                 response = collection.query(query_texts=[query], n_results=1)['documents'][0][0]
                 updated_content = Text.from_markup(
-                    f"[bold]Query:[/bold] {query} in [bold]{collection_name}[/bold]\n\n"
+                    f"[bold]Query:[/bold] [dim]{query}[/dim] in [bold]{collection_name}[/bold]\n\n"
                     f"[green]Top result:[/green]\n{response}"
                 )
                 live.update(Panel(updated_content, border_style="green", expand=False))

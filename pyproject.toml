@@ -9,3 +9,6 @@ dependencies = [
     "questionary>=2.1.0",
     "rich>=14.0.0",
 ]
+
+[project.scripts]
+vectra = "vectra.__main__:main"
