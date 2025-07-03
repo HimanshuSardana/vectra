@@ -12,3 +12,6 @@ wheels/
 
 # ChromaDB
 vector_store/
+
+# Vectra
+.vectra

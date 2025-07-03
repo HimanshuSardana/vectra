@@ -2,7 +2,7 @@
 
 Vectra is a lightweight terminal-based interface for managing vector stores — starting with ChromaDB, with plans to support other backends. It helps you create, query, and organize collections of embedded documents through an intuitive TUI.
 
----
+![Demo Image](./assets/demo.png) 
 
 ## ⚙️ Features
 
