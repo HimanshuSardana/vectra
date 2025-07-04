@@ -1,4 +1,6 @@
 from chromadb import PersistentClient
+from google import genai
+from google.genai import types
 from rich.live import Live
 from rich.console import Console
 from rich.panel import Panel
@@ -60,6 +62,7 @@ class VectraTUI:
                 break
 
     def query(self):
+        client = genai.Client()
         collections = self.chroma_client.list_collections()
         if len(collections) == 0:
             self.display_panel("Error", "No collections found.", style="red")
@@ -77,9 +80,19 @@ class VectraTUI:
         with Live(Panel(content, title="Query"), refresh_per_second=10, console=self.console) as live:
             try:
                 response = collection.query(query_texts=[query], n_results=1)['documents'][0][0]
+                llm_response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=f"""
+                    Here's the query: {query}
+                    Here are the vector store results: {response}
+                    """,
+                    config=types.GenerateContentConfig(
+                        system_instruction="You are a helpful assistant, you will be provided with content from a vector store, your job is to use that content to answer queries",
+                    )
+                ).text
                 updated_content = Text.from_markup(
                     f"[bold]Query:[/bold] [dim]{query}[/dim] in [bold]{collection_name}[/bold]\n\n"
-                    f"[green]Top result:[/green]\n{response}"
+                    f"[green]Result:[/green]\n{llm_response}"
                 )
                 live.update(Panel(updated_content, border_style="green", expand=False))
             except Exception as e:
